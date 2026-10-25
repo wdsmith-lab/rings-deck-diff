@@ -1,5 +1,6 @@
 import sys
 import requests
+import json
 from collections import Counter
 from typing import Dict
 
@@ -14,15 +15,27 @@ def get_deck_slots(deck_id):
 def get_card_map() -> Dict[str, str]:
     # TODO: store the results locally as "cardlist.json" - load this if it exists, else grab them remotely and json.dump() them
 
-    # Don't want to spam the server with individual card reqests, so fetch entire global card catalog at once
-    url = "https://ringsdb.com/api/public/cards/"
-    response = requests.get(url)
-    all_cards = response.json()
+    try:
+        with open('cardlist.json', 'r', encoding='utf-8') as file:
+            print("Local cardlist.json found, loading...")
+            all_cards = json.load(file)
+    except FileNotFoundError:
+        print("cardlist.json not found, creating...")
+        # Don't want to spam the server with individual card reqests, so fetch entire global card catalog at once
+        url = "https://ringsdb.com/api/public/cards/"
+        response = requests.get(url)
+        all_cards = response.json()
+
+        with open("cardlist.json", "w", encoding="utf-8") as file:
+            json.dump(all_cards, file, indent=4)
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON format in cardlist.json. Broken at line {e.lineno}, column {e.colno}.")
 
     # map card code to card name, ie: {"01001": "Aragorn", "01003": "Steward of Gondor"}
     return {card["code"]: card["name"] for card in all_cards}
 
-# Begin main
+
+### Begin main
 
 # Check if arguments were passed
 if len(sys.argv) > 2:
@@ -57,7 +70,7 @@ CLR_GRN = "\033[32m"
 CLR_CYN = "\033[36m"
 CLR_RST = "\033[0m"
 
-print(f"\n{CLR_CYN}=== MIGRATION PATH FROM {deck1_id} to {deck2_id}{CLR_RST}")
+print(f"\n{CLR_CYN}=== MIGRATION PATH FROM {deck1_id} to {deck2_id} ==={CLR_RST}")
 
 print("\n[-] CARDS TO REMOVE FROM DECK 1:")
 if not cards_to_remove:
