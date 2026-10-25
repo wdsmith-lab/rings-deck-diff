@@ -12,6 +12,8 @@ def get_deck_slots(deck_id):
     return Counter(deck_data.get("slots", {}))
 
 def get_card_map() -> Dict[str, str]:
+    # TODO: store the results locally as "cardlist.json" - load this if it exists, else grab them remotely and json.dump() them
+
     # Don't want to spam the server with individual card reqests, so fetch entire global card catalog at once
     url = "https://ringsdb.com/api/public/cards/"
     response = requests.get(url)
@@ -19,6 +21,8 @@ def get_card_map() -> Dict[str, str]:
 
     # map card code to card name, ie: {"01001": "Aragorn", "01003": "Steward of Gondor"}
     return {card["code"]: card["name"] for card in all_cards}
+
+# Begin main
 
 # Check if arguments were passed
 if len(sys.argv) > 2:
@@ -41,6 +45,7 @@ deck2 = get_deck_slots(deck2_id)
 card_map = get_card_map()
 
 # Pull unique cards IDs present across both deck
+# TODO: Is this actually used, ultimately?
 all_card_ids = set(deck1.keys()) | set(deck2.keys())
 
 cards_to_add = deck2 - deck1
@@ -59,14 +64,14 @@ if not cards_to_remove:
     print("   None!")
 for card_id, qty in cards_to_remove.items():
     name = card_map.get(card_id, card_id)
-    print(f"  {CLR_RED}Remove {qty}x {name}{CLR_RST}")    
+    print(f"  {CLR_RED}Remove {qty}x {name} (#{card_id}){CLR_RST}")    
 
 print("\n[+] CARDS TO ADD TO DECK 1:")
 if not cards_to_add:
     print("   None!")
 for card_id, qty in cards_to_add.items():
     name = card_map.get(card_id, card_id)
-    print(f"  {CLR_GRN}Add {qty}x {name}{CLR_RST}")    
+    print(f"  {CLR_GRN}Add {qty}x {name} (#{card_id}){CLR_RST}")    
 
 
 
