@@ -18,13 +18,13 @@ def get_card_map() -> Dict[str, str]:
     try:
         with open('cardlist.json', 'r', encoding='utf-8') as file:
             print("Local cardlist.json found, loading...")
-            all_cards = json.load(file)
+            all_cards: list = json.load(file)
     except FileNotFoundError:
         print("cardlist.json not found, creating...")
         # Don't want to spam the server with individual card reqests, so fetch entire global card catalog at once
-        url = "https://ringsdb.com/api/public/cards/"
-        response = requests.get(url)
-        all_cards = response.json()
+        url: str = "https://ringsdb.com/api/public/cards/"
+        response: requests.Response = requests.get(url)
+        all_cards: list = response.json()
 
         with open("cardlist.json", "w", encoding="utf-8") as file:
             json.dump(all_cards, file, indent=4)
@@ -51,24 +51,24 @@ else:
     print("Two command line arguments (RingsDB deck id numbers) must be provided.")
     sys.exit()
 
-deck1 = get_deck_slots(deck1_id)
-deck2 = get_deck_slots(deck2_id)
+deck1: Counter = get_deck_slots(deck1_id)
+deck2: Counter = get_deck_slots(deck2_id)
 # TODO: exit with error message if one of the decks can not be loaded (empty Counter)
 
-card_map = get_card_map()
+card_map: Dict = get_card_map()
 
 # Pull unique cards IDs present across both deck
 # TODO: Is this actually used, ultimately?
 all_card_ids = set(deck1.keys()) | set(deck2.keys())
 
-cards_to_add = deck2 - deck1
-cards_to_remove = deck1 - deck2
+cards_to_add: Counter = deck2 - deck1
+cards_to_remove: Counter = deck1 - deck2
 
 # ANSI Color Codes
-CLR_RED = "\033[31m"
-CLR_GRN = "\033[32m"
-CLR_CYN = "\033[36m"
-CLR_RST = "\033[0m"
+CLR_RED: str  = "\033[31m"
+CLR_GRN: str = "\033[32m"
+CLR_CYN: str = "\033[36m"
+CLR_RST: str = "\033[0m"
 
 print(f"\n{CLR_CYN}=== MIGRATION PATH FROM {deck1_id} to {deck2_id} ==={CLR_RST}")
 
@@ -76,14 +76,14 @@ print("\n[-] CARDS TO REMOVE FROM DECK 1:")
 if not cards_to_remove:
     print("   None!")
 for card_id, qty in cards_to_remove.items():
-    name = card_map.get(card_id, card_id)
+    name: str = card_map.get(card_id, card_id)
     print(f"  {CLR_RED}Remove {qty}x {name} (#{card_id}){CLR_RST}")    
 
 print("\n[+] CARDS TO ADD TO DECK 1:")
 if not cards_to_add:
     print("   None!")
 for card_id, qty in cards_to_add.items():
-    name = card_map.get(card_id, card_id)
+    name: str = card_map.get(card_id, card_id)
     print(f"  {CLR_GRN}Add {qty}x {name} (#{card_id}){CLR_RST}")    
 
 
