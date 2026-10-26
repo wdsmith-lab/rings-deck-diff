@@ -36,6 +36,8 @@ def get_card_map() -> Dict[str, str]:
     # map card code to card name, ie: {"01001": "Aragorn", "01003": "Steward of Gondor"}
     return {card["code"]: card["name"] for card in all_cards}
 
+def pad_string_to_length(input_str, length) -> str:
+    return input_str.ljust(length)
 
 ### Begin main
 
@@ -58,10 +60,11 @@ deck2: Counter = get_deck_slots(deck2_id)
 # TODO: exit with error message if one of the decks can not be loaded (empty Counter)
 
 card_map: Dict = get_card_map()
+card_name_longest_length: int = len(max(card_map.values(), key=len))
 
 # Pull unique cards IDs present across both deck
 # TODO: Is this actually used, ultimately?
-all_card_ids = set(deck1.keys()) | set(deck2.keys())
+#all_card_ids = set(deck1.keys()) | set(deck2.keys())
 
 cards_to_add: Counter = deck2 - deck1
 cards_to_remove: Counter = deck1 - deck2
@@ -81,14 +84,14 @@ if not cards_to_remove:
     print("   None!")
 for card_id, qty in cards_to_remove.items():
     name = card_map.get(card_id, card_id)
-    print(f"  {CLR_RED}Remove {qty}x {name} (#{card_id}){CLR_RST}")    
+    print(f"  {CLR_RED}Remove {qty}x " + pad_string_to_length(name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")    
 
 print("\n[+] CARDS TO ADD TO DECK 1:")
 if not cards_to_add:
     print("   None!")
 for card_id, qty in cards_to_add.items():
     name = card_map.get(card_id, card_id)
-    print(f"  {CLR_GRN}Add {qty}x {name} (#{card_id}){CLR_RST}")    
+    print(f"  {CLR_GRN}Remove {qty}x " + pad_string_to_length(name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")  
 
 
 
