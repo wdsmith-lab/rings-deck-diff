@@ -13,21 +13,23 @@ def get_deck_slots(deck_id):
     return Counter(deck_data.get("slots", {}))
 
 def get_card_map() -> Dict[str, str]:
-    # TODO: store the results locally as "cardlist.json" - load this if it exists, else grab them remotely and json.dump() them
+    all_cards: list
 
     try:
         with open('cardlist.json', 'r', encoding='utf-8') as file:
             print("Local cardlist.json found, loading...")
-            all_cards: list = json.load(file)
+            all_cards = json.load(file)
+    
     except FileNotFoundError:
         print("cardlist.json not found, creating...")
         # Don't want to spam the server with individual card reqests, so fetch entire global card catalog at once
         url: str = "https://ringsdb.com/api/public/cards/"
         response: requests.Response = requests.get(url)
-        all_cards: list = response.json()
+        all_cards = response.json()
 
         with open("cardlist.json", "w", encoding="utf-8") as file:
             json.dump(all_cards, file, indent=4)
+    
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON format in cardlist.json. Broken at line {e.lineno}, column {e.colno}.")
 
@@ -70,20 +72,22 @@ CLR_GRN: str = "\033[32m"
 CLR_CYN: str = "\033[36m"
 CLR_RST: str = "\033[0m"
 
+name: str
+
 print(f"\n{CLR_CYN}=== MIGRATION PATH FROM {deck1_id} to {deck2_id} ==={CLR_RST}")
 
 print("\n[-] CARDS TO REMOVE FROM DECK 1:")
 if not cards_to_remove:
     print("   None!")
 for card_id, qty in cards_to_remove.items():
-    name: str = card_map.get(card_id, card_id)
+    name = card_map.get(card_id, card_id)
     print(f"  {CLR_RED}Remove {qty}x {name} (#{card_id}){CLR_RST}")    
 
 print("\n[+] CARDS TO ADD TO DECK 1:")
 if not cards_to_add:
     print("   None!")
 for card_id, qty in cards_to_add.items():
-    name: str = card_map.get(card_id, card_id)
+    name = card_map.get(card_id, card_id)
     print(f"  {CLR_GRN}Add {qty}x {name} (#{card_id}){CLR_RST}")    
 
 
