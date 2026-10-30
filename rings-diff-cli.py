@@ -91,7 +91,7 @@ if not cards_to_add:
     print("   None!")
 for card_id, qty in cards_to_add.items():
     name = card_map.get(card_id, card_id)
-    print(f"  {CLR_GRN}Remove {qty}x " + pad_string_to_length(name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")  
+    print(f"  {CLR_GRN}Add {qty}x " + pad_string_to_length(name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")  
 
 
 
