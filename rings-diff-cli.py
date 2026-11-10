@@ -3,6 +3,13 @@ import requests
 import json
 from collections import Counter
 from typing import Dict
+from dataclasses import dataclass
+
+@dataclass
+class CardData:
+    code: int
+    name: str
+    sphere_name: str
 
 def get_deck_slots(deck_id):
     # I like declaring types, coming from strongly typed language backgrounds
@@ -12,7 +19,7 @@ def get_deck_slots(deck_id):
     deck_data: dict = http_response.json()
     return Counter(deck_data.get("slots", {}))
 
-def get_card_map() -> Dict[str, str]:
+def get_card_map() -> Dict[str, CardData]:
     all_cards: list
 
     try:
@@ -33,8 +40,19 @@ def get_card_map() -> Dict[str, str]:
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON format in cardlist.json. Broken at line {e.lineno}, column {e.colno}.")
 
-    # map card code to card name, ie: {"01001": "Aragorn", "01003": "Steward of Gondor"}
-    return {card["code"]: card["name"] for card in all_cards}
+    # DEBUG: temp for analyzing structure of all_cards
+    #tempcard = all_cards[1]
+    #print(tempcard)
+    #sys.exit()
+    # END DEBUG BLOCK
+
+    dict: Dict = {}
+    for card in all_cards:
+        card_data = CardData(card["code"], card["name"], card["sphere_name"])
+        dict[card["code"]] = card_data
+   
+    return dict
+
 
 def pad_string_to_length(input_str, length) -> str:
     return input_str.ljust(length)
@@ -60,7 +78,9 @@ deck2: Counter = get_deck_slots(deck2_id)
 # TODO: exit with error message if one of the decks can not be loaded (empty Counter)
 
 card_map: Dict = get_card_map()
-card_name_longest_length: int = len(max(card_map.values(), key=len))
+
+# Returns 0 if the dictionary is completely empty
+card_name_longest_length: int = max((len(card.name) for card in card_map.values()), default=0)
 
 # Pull unique cards IDs present across both deck
 # TODO: Is this actually used, ultimately?
@@ -83,15 +103,15 @@ print("\n[-] CARDS TO REMOVE FROM DECK 1:")
 if not cards_to_remove:
     print("   None!")
 for card_id, qty in cards_to_remove.items():
-    name = card_map.get(card_id, card_id)
-    print(f"  {CLR_RED}Remove {qty}x " + pad_string_to_length(name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")    
+    card_data: CardData = card_map.get(card_id, card_id)
+    print(f"  {CLR_RED}Remove {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")    
 
 print("\n[+] CARDS TO ADD TO DECK 1:")
 if not cards_to_add:
     print("   None!")
 for card_id, qty in cards_to_add.items():
-    name = card_map.get(card_id, card_id)
-    print(f"  {CLR_GRN}Add {qty}x " + pad_string_to_length(name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")  
+    card_data = card_map.get(card_id, card_id)
+    print(f"  {CLR_GRN}Add {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")  
 
 
 
