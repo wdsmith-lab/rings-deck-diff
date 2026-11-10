@@ -104,14 +104,14 @@ if not cards_to_remove:
     print("   None!")
 for card_id, qty in cards_to_remove.items():
     card_data: CardData = card_map.get(card_id, card_id)
-    print(f"  {CLR_RED}Remove {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")    
+    print(f"  {CLR_RED}Remove {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){CLR_RST}" + f" [{card_data.sphere_name}]")    
 
 print("\n[+] CARDS TO ADD TO DECK 1:")
 if not cards_to_add:
     print("   None!")
 for card_id, qty in cards_to_add.items():
     card_data = card_map.get(card_id, card_id)
-    print(f"  {CLR_GRN}Add {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){CLR_RST}")  
+    print(f"  {CLR_GRN}Add {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){CLR_RST}" + f" [{card_data.sphere_name}]")  
 
 
 
