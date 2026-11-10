@@ -10,6 +10,18 @@ class CardData:
     code: int
     name: str
     sphere_name: str
+    sphere_color: str
+
+@dataclass
+class Color:
+    # ANSI Color Codes
+    CLR_BLU: str = "\033[34m"
+    CLR_RED: str  = "\033[31m"
+    CLR_GRN: str = "\033[32m"
+    CLR_MAG: str = "\033[35m"
+    CLR_CYN: str = "\033[36m"
+    CLR_YLW: str = "\033[33m"
+    CLR_RST: str = "\033[0m"
 
 def get_deck_slots(deck_id):
     # I like declaring types, coming from strongly typed language backgrounds
@@ -48,7 +60,23 @@ def get_card_map() -> Dict[str, CardData]:
 
     dict: Dict = {}
     for card in all_cards:
-        card_data = CardData(card["code"], card["name"], card["sphere_name"])
+        sphere_color: str
+
+        match card["sphere_name"]:
+            case "Fellowship":
+                sphere_color = Color.CLR_YLW
+            case "Leadership":
+                sphere_color = Color.CLR_MAG
+            case "Lore":
+                sphere_color = Color.CLR_GRN
+            case "Spirit":
+                sphere_color = Color.CLR_BLU
+            case "Tactics":
+                sphere_color = Color.CLR_RED        
+            case _:
+                sphere_color = Color.CLR_RST
+
+        card_data = CardData(card["code"], card["name"], card["sphere_name"], sphere_color)
         dict[card["code"]] = card_data
    
     return dict
@@ -89,29 +117,23 @@ card_name_longest_length: int = max((len(card.name) for card in card_map.values(
 cards_to_add: Counter = deck2 - deck1
 cards_to_remove: Counter = deck1 - deck2
 
-# ANSI Color Codes
-CLR_RED: str  = "\033[31m"
-CLR_GRN: str = "\033[32m"
-CLR_CYN: str = "\033[36m"
-CLR_RST: str = "\033[0m"
-
 name: str
 
-print(f"\n{CLR_CYN}=== MIGRATION PATH FROM {deck1_id} to {deck2_id} ==={CLR_RST}")
+print(f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} to {deck2_id} ==={Color.CLR_RST}")
 
 print("\n[-] CARDS TO REMOVE FROM DECK 1:")
 if not cards_to_remove:
     print("   None!")
 for card_id, qty in cards_to_remove.items():
     card_data: CardData = card_map.get(card_id, card_id)
-    print(f"  {CLR_RED}Remove {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){CLR_RST}" + f" [{card_data.sphere_name}]")    
+    print(f"  {Color.CLR_RED}Remove {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){Color.CLR_RST}" + f" [{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]")    
 
 print("\n[+] CARDS TO ADD TO DECK 1:")
 if not cards_to_add:
     print("   None!")
 for card_id, qty in cards_to_add.items():
     card_data = card_map.get(card_id, card_id)
-    print(f"  {CLR_GRN}Add {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){CLR_RST}" + f" [{card_data.sphere_name}]")  
+    print(f"  {Color.CLR_GRN}Add {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){Color.CLR_RST}" + f" [{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]")
 
 
 
