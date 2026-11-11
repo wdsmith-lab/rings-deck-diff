@@ -113,34 +113,44 @@ deck1: DeckData = get_deck_data(deck1_id)
 deck2: DeckData = get_deck_data(deck2_id)
 # TODO: exit with error message if one of the decks can not be loaded (empty Counter)
 
-card_map: Dict = get_card_map()
+card_map_full: Dict = get_card_map()
+
+#print(card_map)
+#sys.exit()
+
 
 # Returns 0 if the dictionary is completely empty
-card_name_longest_length: int = max((len(card.name) for card in card_map.values()), default=0)
+card_name_longest_length: int = max((len(card.name) for card in card_map_full.values()), default=0)
 
-cards_to_add: Counter = deck2.slots - deck1.slots
-cards_to_remove: Counter = deck1.slots - deck2.slots
+cards_to_add_slots: Counter = deck2.slots - deck1.slots
+cards_to_remove_slots: Counter = deck1.slots - deck2.slots
+card_map_to_add = {k: v for k, v in card_map_full.items() if k in cards_to_add_slots}
+card_map_to_remove = {k: v for k, v in card_map_full.items() if k in cards_to_remove_slots}
+
+#print(list(card_map_to_add.values()))
+#sys.exit()
 
 name: str
 
 print(f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} \"({deck1.name}\") to {deck2_id} (\"{deck2.name}\") ==={Color.CLR_RST}")
 
+#print(list(cards_to_remove.items()))
 print("\n[-] CARDS TO REMOVE FROM DECK 1:")
-if not cards_to_remove:
+if not cards_to_remove_slots:
     print("   None!")
-for card_id, qty in cards_to_remove.items():
-    card_data: CardData = card_map.get(card_id, card_id)
-    print(f"  {Color.CLR_RED}Remove {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
+for card_id, card_data in card_map_to_remove.items():
+    #card_data: CardData = card_map_full.get(card_id, card_id)
+    print(f"  {Color.CLR_RED}Remove {cards_to_remove_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
         pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
         pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
         f" [{card_data.type}]")  
 
 print("\n[+] CARDS TO ADD TO DECK 1:")
-if not cards_to_add:
+if not cards_to_add_slots:
     print("   None!")
-for card_id, qty in cards_to_add.items():
-    card_data = card_map.get(card_id, card_id)
-    print(f"  {Color.CLR_GRN}Add {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
+for card_id, card_data in card_map_to_add.items():
+    #card_data: CardData = card_map_full.get(card_id, card_id)
+    print(f"  {Color.CLR_GRN}Add {cards_to_add_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
           pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
           pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
           f" [{card_data.type}]")
