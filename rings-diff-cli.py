@@ -13,6 +13,12 @@ class CardData:
     sphere_color: str
 
 @dataclass
+class DeckData:
+    deck_id: int
+    name: str
+    slots: Counter
+
+@dataclass
 class Color:
     # ANSI Color Codes
     CLR_BLU: str = "\033[34m"
@@ -23,13 +29,14 @@ class Color:
     CLR_YLW: str = "\033[33m"
     CLR_RST: str = "\033[0m"
 
-def get_deck_slots(deck_id):
+def get_deck_data(deck_id):
     # I like declaring types, coming from strongly typed language backgrounds
     url: str = f"https://ringsdb.com/api/public/decklist/{deck_id}.json"
     http_response: requests.Response = requests.get(url)
     #return Counter(response.get("slots", {}))
-    deck_data: dict = http_response.json()
-    return Counter(deck_data.get("slots", {}))
+    raw_deck_data: dict = http_response.json()
+    deck_data: DeckData = DeckData(deck_id, raw_deck_data.get("name", "Unknown Deck"), Counter(raw_deck_data.get("slots", {})))
+    return deck_data
 
 def get_card_map() -> Dict[str, CardData]:
     all_cards: list
@@ -101,8 +108,8 @@ else:
     print("Two command line arguments (RingsDB deck id numbers) must be provided.")
     sys.exit()
 
-deck1: Counter = get_deck_slots(deck1_id)
-deck2: Counter = get_deck_slots(deck2_id)
+deck1: DeckData = get_deck_data(deck1_id)
+deck2: DeckData = get_deck_data(deck2_id)
 # TODO: exit with error message if one of the decks can not be loaded (empty Counter)
 
 card_map: Dict = get_card_map()
@@ -114,12 +121,12 @@ card_name_longest_length: int = max((len(card.name) for card in card_map.values(
 # TODO: Is this actually used, ultimately?
 #all_card_ids = set(deck1.keys()) | set(deck2.keys())
 
-cards_to_add: Counter = deck2 - deck1
-cards_to_remove: Counter = deck1 - deck2
+cards_to_add: Counter = deck2.slots - deck1.slots
+cards_to_remove: Counter = deck1.slots - deck2.slots
 
 name: str
 
-print(f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} to {deck2_id} ==={Color.CLR_RST}")
+print(f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} \"({deck1.name}\") to {deck2_id} (\"{deck2.name}\") ==={Color.CLR_RST}")
 
 print("\n[-] CARDS TO REMOVE FROM DECK 1:")
 if not cards_to_remove:
