@@ -113,7 +113,7 @@ deck1: DeckData = get_deck_data(deck1_id)
 deck2: DeckData = get_deck_data(deck2_id)
 # TODO: exit with error message if one of the decks can not be loaded (empty Counter)
 
-card_map_full: Dict = get_card_map()
+card_map_full: Dict[str, CardData] = get_card_map()
 
 #print(card_map)
 #sys.exit()
@@ -124,11 +124,16 @@ card_name_longest_length: int = max((len(card.name) for card in card_map_full.va
 
 cards_to_add_slots: Counter = deck2.slots - deck1.slots
 cards_to_remove_slots: Counter = deck1.slots - deck2.slots
-card_map_to_add = {k: v for k, v in card_map_full.items() if k in cards_to_add_slots}
-card_map_to_remove = {k: v for k, v in card_map_full.items() if k in cards_to_remove_slots}
+card_map_to_add: Dict[str, CardData] = {k: v for k, v in card_map_full.items() if k in cards_to_add_slots}
+card_map_to_remove: Dict[str, CardData] = {k: v for k, v in card_map_full.items() if k in cards_to_remove_slots}
 
 #print(list(card_map_to_add.values()))
 #sys.exit()
+
+# TO DO: Allow for multiple sorting methods, e.g. by name, by sphere, by type, etc.
+# For now, sort by sphere, then by type, then by name
+card_map_to_add = dict(sorted(card_map_to_add.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
+card_map_to_remove = dict(sorted(card_map_to_remove.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
 
 name: str
 
@@ -139,7 +144,6 @@ print("\n[-] CARDS TO REMOVE FROM DECK 1:")
 if not cards_to_remove_slots:
     print("   None!")
 for card_id, card_data in card_map_to_remove.items():
-    #card_data: CardData = card_map_full.get(card_id, card_id)
     print(f"  {Color.CLR_RED}Remove {cards_to_remove_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
         pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
         pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
@@ -149,7 +153,6 @@ print("\n[+] CARDS TO ADD TO DECK 1:")
 if not cards_to_add_slots:
     print("   None!")
 for card_id, card_data in card_map_to_add.items():
-    #card_data: CardData = card_map_full.get(card_id, card_id)
     print(f"  {Color.CLR_GRN}Add {cards_to_add_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
           pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
           pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
