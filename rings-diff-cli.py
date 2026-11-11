@@ -11,6 +11,7 @@ class CardData:
     name: str
     sphere_name: str
     sphere_color: str
+    type: str
 
 @dataclass
 class DeckData:
@@ -22,7 +23,7 @@ class DeckData:
 class Color:
     # ANSI Color Codes
     CLR_BLU: str = "\033[34m"
-    CLR_RED: str  = "\033[31m"
+    CLR_RED: str = "\033[31m"
     CLR_GRN: str = "\033[32m"
     CLR_MAG: str = "\033[35m"
     CLR_CYN: str = "\033[36m"
@@ -83,7 +84,7 @@ def get_card_map() -> Dict[str, CardData]:
             case _:
                 sphere_color = Color.CLR_RST
 
-        card_data = CardData(card["code"], card["name"], card["sphere_name"], sphere_color)
+        card_data = CardData(card["code"], card["name"], card["sphere_name"], sphere_color, card["type_name"])
         dict[card["code"]] = card_data
    
     return dict
@@ -129,14 +130,20 @@ if not cards_to_remove:
     print("   None!")
 for card_id, qty in cards_to_remove.items():
     card_data: CardData = card_map.get(card_id, card_id)
-    print(f"  {Color.CLR_RED}Remove {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){Color.CLR_RST}" + f" [{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]")    
+    print(f"  {Color.CLR_RED}Remove {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
+        pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
+        pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
+        f" [{card_data.type}]")  
 
 print("\n[+] CARDS TO ADD TO DECK 1:")
 if not cards_to_add:
     print("   None!")
 for card_id, qty in cards_to_add.items():
     card_data = card_map.get(card_id, card_id)
-    print(f"  {Color.CLR_GRN}Add {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + f" (#{card_id}){Color.CLR_RST}" + f" [{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]")
+    print(f"  {Color.CLR_GRN}Add {qty}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
+          pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
+          pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
+          f" [{card_data.type}]")
 
 
 
