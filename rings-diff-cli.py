@@ -33,7 +33,7 @@ def get_deck_data(deck_id):
     # I like declaring types, coming from strongly typed language backgrounds
     url: str = f"https://ringsdb.com/api/public/decklist/{deck_id}.json"
     http_response: requests.Response = requests.get(url)
-    #return Counter(response.get("slots", {}))
+
     raw_deck_data: dict = http_response.json()
     deck_data: DeckData = DeckData(deck_id, raw_deck_data.get("name", "Unknown Deck"), Counter(raw_deck_data.get("slots", {})))
     return deck_data
@@ -116,10 +116,6 @@ card_map: Dict = get_card_map()
 
 # Returns 0 if the dictionary is completely empty
 card_name_longest_length: int = max((len(card.name) for card in card_map.values()), default=0)
-
-# Pull unique cards IDs present across both deck
-# TODO: Is this actually used, ultimately?
-#all_card_ids = set(deck1.keys()) | set(deck2.keys())
 
 cards_to_add: Counter = deck2.slots - deck1.slots
 cards_to_remove: Counter = deck1.slots - deck2.slots
