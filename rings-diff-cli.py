@@ -12,7 +12,7 @@ class CardData:
     sphere_name: str
     sphere_color: str
     type: str
-    pack_code: str = None
+    pack_code: str
 
 @dataclass
 class DeckData:
