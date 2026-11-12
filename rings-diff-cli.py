@@ -10,7 +10,6 @@ class CardData:
     code: int
     name: str
     sphere_name: str
-    sphere_color: str
     type: str
     pack_code: str
 
@@ -52,6 +51,23 @@ class MigrationOutput:
         )
         return output
 
+    def _get_sphere_color(self, sphere_name: str) -> str:
+        match sphere_name:
+            case "Fellowship":
+                return Color.CLR_YLW
+            case "Leadership":
+                return Color.CLR_MAG
+            case "Lore":
+                return Color.CLR_GRN
+            case "Spirit":
+                return Color.CLR_BLU
+            case "Tactics":
+                return Color.CLR_RED
+            case "Neutral":
+                return Color.CLR_WHT        
+            case _:
+                return Color.CLR_RST
+
     def _format_card_changes(
         self,
         heading: str,
@@ -71,7 +87,7 @@ class MigrationOutput:
                 + pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13)
                 + " "
                 + pad_string_to_length(
-                    f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]",
+                    f"[{self._get_sphere_color(card_data.sphere_name)}{card_data.sphere_name}{Color.CLR_RST}]",
                     23,
                 )
                 + pad_string_to_length(f" [{card_data.type}]", 15)
@@ -92,7 +108,6 @@ class Color:
     CLR_RST: str = "\033[0m"
 
 def get_deck_data(deck_id):
-    # I like declaring types, coming from strongly typed language backgrounds
     url: str = f"https://ringsdb.com/api/public/decklist/{deck_id}.json"
     http_response: requests.Response = requests.get(url)
 
@@ -129,25 +144,8 @@ def get_card_map() -> Dict[str, CardData]:
 
     dict: Dict = {}
     for card in all_cards:
-        sphere_color: str
 
-        match card["sphere_name"]:
-            case "Fellowship":
-                sphere_color = Color.CLR_YLW
-            case "Leadership":
-                sphere_color = Color.CLR_MAG
-            case "Lore":
-                sphere_color = Color.CLR_GRN
-            case "Spirit":
-                sphere_color = Color.CLR_BLU
-            case "Tactics":
-                sphere_color = Color.CLR_RED
-            case "Neutral":
-                sphere_color = Color.CLR_WHT        
-            case _:
-                sphere_color = Color.CLR_RST
-
-        card_data = CardData(card["code"], card["name"], card["sphere_name"], sphere_color, card["type_name"], card["pack_code"])
+        card_data = CardData(card["code"], card["name"], card["sphere_name"], card["type_name"], card["pack_code"])
         dict[card["code"]] = card_data
    
     return dict
