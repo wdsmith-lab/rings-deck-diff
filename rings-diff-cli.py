@@ -97,6 +97,10 @@ def get_card_map() -> Dict[str, CardData]:
 def pad_string_to_length(input_str, length) -> str:
     return input_str.ljust(length)
 
+def strip_ansi_escape_codes(input_str) -> str:
+    import re
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', input_str)
 
 def main():
     # Check if arguments were passed
@@ -134,36 +138,43 @@ def main():
     #print(list(card_map_to_add.values()))
     #sys.exit()
 
-    # TO DO: Allow for multiple sorting methods, e.g. by name, by sphere, by type, etc.
+    # TODO: Allow for multiple sorting methods, e.g. by name, by sphere, by type, etc.
     # For now, sort by sphere, then by type, then by name
     card_map_to_add = dict(sorted(card_map_to_add.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
     card_map_to_remove = dict(sorted(card_map_to_remove.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
 
+    # TODO: This will be a lot cleaner if I use a dataclass for the output, but for now just build a string to print to console
     name: str
+    output: str
+    colorize: bool = True # TODO: Add command line argument to disable colorization for Windows cmd.exe users
 
-    print(f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} \"({deck1.name}\") to {deck2_id} (\"{deck2.name}\") ==={Color.CLR_RST}")
+    output = f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} (\"{deck1.name}\") to {deck2_id} (\"{deck2.name}\") ==={Color.CLR_RST}"
 
-    print("\n[-] CARDS TO REMOVE FROM DECK 1:")
+    output += f"\n\n[-] CARDS TO REMOVE FROM DECK 1:"
     if not cards_to_remove_slots:
-        print("   None!")
+        output += "   None!"
 
     for card_id, card_data in card_map_to_remove.items():
-        print(f"  {Color.CLR_RED}Remove {cards_to_remove_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
-            pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
-            pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
-            pad_string_to_length(f" [{card_data.type}]", 15) +
-            pad_string_to_length(f" (from pack: {card_data.pack_code})", 20)) 
-
-    print("\n[+] CARDS TO ADD TO DECK 1:")
-    if not cards_to_add_slots:
-        print("   None!")
-    for card_id, card_data in card_map_to_add.items():
-        print(f"  {Color.CLR_GRN}Add {cards_to_add_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
+        output += (f"\n  {Color.CLR_RED}Remove {cards_to_remove_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) +
             pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
             pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
             pad_string_to_length(f" [{card_data.type}]", 15) +
             pad_string_to_length(f" (from pack: {card_data.pack_code})", 20))
 
+    output += f"\n\n[+] CARDS TO ADD TO DECK 1:"
+    if not cards_to_add_slots:
+        output += "   None!"
+    for card_id, card_data in card_map_to_add.items():
+        output += (f"\n  {Color.CLR_GRN}Add {cards_to_add_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) +
+            pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
+            pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
+            pad_string_to_length(f" [{card_data.type}]", 15) +
+            pad_string_to_length(f" (from pack: {card_data.pack_code})", 20))
+
+    if colorize:
+        print(output)
+    else:
+        print(strip_ansi_escape_codes(output))
 
 if __name__ == "__main__":
     main()
