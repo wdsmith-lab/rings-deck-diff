@@ -1,36 +1,31 @@
 # rings-deck-diff
 
-Lord of the Rings LCG deck diff tool for comparing two RingsDB decks and showing which cards to remove and which to add in order to turn deck 1 into deck 2.
+A small utility for comparing two published RingsDB decks and showing exactly what to remove and add to transform one into the other.
 
-## What it does
+## Overview
 
-This tool helps you migrate from one published RingsDB deck to another by showing a clear list of:
+If you are moving from one Lord of the Rings LCG deck to another, this tool helps you see the delta at a glance:
 
 - cards to remove from the first deck
-- cards to add to turn it into the second deck
+- cards to add to reach the second deck
+- a quick way to compare deck variants and deck updates
 
-It is especially useful when comparing similar decks or tracking the changes between a deck and a later variant.
+This is especially useful when you want to migrate a deck without manually checking each card.
 
-## Example usage
+## Example
 
 ```bash
 python3 rings-diff-cli.py 8682 15839
 ```
 
-This compares the first deck ID to the second and prints the card-by-card delta between them.
+This compares the first deck ID to the second and prints the card-by-card changes between them.
 
-## Reference deck pair
+## Good reference decks
 
-These are a good pair to try because they are well known and one is derived from the other:
+These are a strong pair to try because they are well known and one is derived from the other:
 
 - `8682`
 - `15839`
-
-You can compare them directly with:
-
-```bash
-python3 rings-diff-cli.py 8682 15839
-```
 
 ## Usage
 
@@ -50,4 +45,5 @@ python3 rings-diff-cli.py [-h] [-c] deck1_id deck2_id
 
 ## Current limitations
 
-- Decks must be published (public) on RingsDB. Support for private decks is planned.
+- Decks must be published (public) on RingsDB.
+- Support for private decks is planned.
