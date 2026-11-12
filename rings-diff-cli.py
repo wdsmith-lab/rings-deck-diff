@@ -21,6 +21,65 @@ class DeckData:
     slots: Counter
 
 @dataclass
+class MigrationOutput:
+    deck1: DeckData
+    deck2: DeckData
+    cards_to_remove_slots: Counter
+    cards_to_add_slots: Counter
+    card_map_to_remove: Dict[str, CardData]
+    card_map_to_add: Dict[str, CardData]
+    card_name_width: int
+
+    def __str__(self) -> str:
+        output = (
+            f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {self.deck1.deck_id} "
+            f"(\"{self.deck1.name}\") to {self.deck2.deck_id} "
+            f"(\"{self.deck2.name}\") ==={Color.CLR_RST}"
+        )
+        output += self._format_card_changes(
+            "[-] CARDS TO REMOVE FROM DECK 1",
+            "Remove",
+            Color.CLR_RED,
+            self.cards_to_remove_slots,
+            self.card_map_to_remove,
+        )
+        output += self._format_card_changes(
+            "[+] CARDS TO ADD TO DECK 1",
+            "Add",
+            Color.CLR_GRN,
+            self.cards_to_add_slots,
+            self.card_map_to_add,
+        )
+        return output
+
+    def _format_card_changes(
+        self,
+        heading: str,
+        action: str,
+        action_color: str,
+        slots: Counter,
+        cards: Dict[str, CardData],
+    ) -> str:
+        output = f"\n\n{heading}:"
+        if not slots:
+            output += "   None!"
+
+        for card_id, card_data in cards.items():
+            output += (
+                f"\n  {action_color}{action} {slots[card_id]}x "
+                + pad_string_to_length(card_data.name, self.card_name_width)
+                + pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13)
+                + " "
+                + pad_string_to_length(
+                    f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]",
+                    23,
+                )
+                + pad_string_to_length(f" [{card_data.type}]", 15)
+                + pad_string_to_length(f" (from pack: {card_data.pack_code})", 20)
+            )
+        return output
+
+@dataclass
 class Color:
     # ANSI Color Codes
     CLR_BLU: str = "\033[34m"
@@ -117,6 +176,8 @@ def main():
         print("Two command line arguments (RingsDB deck id numbers) must be provided.")
         sys.exit()
 
+    colorize: bool = True # TODO: Add command line argument to disable colorization for Windows cmd.exe users
+
     deck1: DeckData = get_deck_data(deck1_id)
     deck2: DeckData = get_deck_data(deck2_id)
     # TODO: exit with error message if one of the decks can not be loaded (empty Counter)
@@ -125,7 +186,6 @@ def main():
 
     #print(card_map)
     #sys.exit()
-
 
     # Returns 0 if the dictionary is completely empty
     card_name_longest_length: int = max((len(card.name) for card in card_map_full.values()), default=0)
@@ -143,38 +203,20 @@ def main():
     card_map_to_add = dict(sorted(card_map_to_add.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
     card_map_to_remove = dict(sorted(card_map_to_remove.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
 
-    # TODO: This will be a lot cleaner if I use a dataclass for the output, but for now just build a string to print to console
-    name: str
-    output: str
-    colorize: bool = True # TODO: Add command line argument to disable colorization for Windows cmd.exe users
-
-    output = f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} (\"{deck1.name}\") to {deck2_id} (\"{deck2.name}\") ==={Color.CLR_RST}"
-
-    output += f"\n\n[-] CARDS TO REMOVE FROM DECK 1:"
-    if not cards_to_remove_slots:
-        output += "   None!"
-
-    for card_id, card_data in card_map_to_remove.items():
-        output += (f"\n  {Color.CLR_RED}Remove {cards_to_remove_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) +
-            pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
-            pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
-            pad_string_to_length(f" [{card_data.type}]", 15) +
-            pad_string_to_length(f" (from pack: {card_data.pack_code})", 20))
-
-    output += f"\n\n[+] CARDS TO ADD TO DECK 1:"
-    if not cards_to_add_slots:
-        output += "   None!"
-    for card_id, card_data in card_map_to_add.items():
-        output += (f"\n  {Color.CLR_GRN}Add {cards_to_add_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) +
-            pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
-            pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
-            pad_string_to_length(f" [{card_data.type}]", 15) +
-            pad_string_to_length(f" (from pack: {card_data.pack_code})", 20))
+    migration_output = MigrationOutput(
+        deck1,
+        deck2,
+        cards_to_remove_slots,
+        cards_to_add_slots,
+        card_map_to_remove,
+        card_map_to_add,
+        card_name_longest_length,
+    )
 
     if colorize:
-        print(output)
+        print(migration_output)
     else:
-        print(strip_ansi_escape_codes(output))
+        print(strip_ansi_escape_codes(str(migration_output)))
 
 if __name__ == "__main__":
     main()
