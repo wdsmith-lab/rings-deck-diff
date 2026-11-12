@@ -12,6 +12,7 @@ class CardData:
     sphere_name: str
     sphere_color: str
     type: str
+    pack_code: str = None
 
 @dataclass
 class DeckData:
@@ -87,7 +88,7 @@ def get_card_map() -> Dict[str, CardData]:
             case _:
                 sphere_color = Color.CLR_RST
 
-        card_data = CardData(card["code"], card["name"], card["sphere_name"], sphere_color, card["type_name"])
+        card_data = CardData(card["code"], card["name"], card["sphere_name"], sphere_color, card["type_name"], card["pack_code"])
         dict[card["code"]] = card_data
    
     return dict
@@ -150,7 +151,8 @@ def main():
         print(f"  {Color.CLR_RED}Remove {cards_to_remove_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
             pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
             pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
-            f" [{card_data.type}]")  
+            pad_string_to_length(f" [{card_data.type}]", 15) +
+            pad_string_to_length(f" (from pack: {card_data.pack_code})", 20)) 
 
     print("\n[+] CARDS TO ADD TO DECK 1:")
     if not cards_to_add_slots:
@@ -159,7 +161,8 @@ def main():
         print(f"  {Color.CLR_GRN}Add {cards_to_add_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
             pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
             pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
-            f" [{card_data.type}]")
+            pad_string_to_length(f" [{card_data.type}]", 15) +
+            pad_string_to_length(f" (from pack: {card_data.pack_code})", 20))
 
 
 if __name__ == "__main__":
