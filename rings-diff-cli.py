@@ -28,6 +28,7 @@ class Color:
     CLR_MAG: str = "\033[35m"
     CLR_CYN: str = "\033[36m"
     CLR_YLW: str = "\033[33m"
+    CLR_WHT: str = "\033[37m"
     CLR_RST: str = "\033[0m"
 
 def get_deck_data(deck_id):
@@ -80,7 +81,9 @@ def get_card_map() -> Dict[str, CardData]:
             case "Spirit":
                 sphere_color = Color.CLR_BLU
             case "Tactics":
-                sphere_color = Color.CLR_RED        
+                sphere_color = Color.CLR_RED
+            case "Neutral":
+                sphere_color = Color.CLR_WHT        
             case _:
                 sphere_color = Color.CLR_RST
 
@@ -139,10 +142,10 @@ name: str
 
 print(f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} \"({deck1.name}\") to {deck2_id} (\"{deck2.name}\") ==={Color.CLR_RST}")
 
-#print(list(cards_to_remove.items()))
 print("\n[-] CARDS TO REMOVE FROM DECK 1:")
 if not cards_to_remove_slots:
     print("   None!")
+
 for card_id, card_data in card_map_to_remove.items():
     print(f"  {Color.CLR_RED}Remove {cards_to_remove_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
         pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
