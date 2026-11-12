@@ -96,73 +96,73 @@ def get_card_map() -> Dict[str, CardData]:
 def pad_string_to_length(input_str, length) -> str:
     return input_str.ljust(length)
 
-### Begin main
 
-# Check if arguments were passed
-if len(sys.argv) > 2:
-    script_name: str = sys.argv[0]
-    # TODO: Try/Catch and fail gracefully with an error message if ValueError
-    deck1_id: int = int(sys.argv[1])
-    deck2_id: int = int(sys.argv[2])
+def main():
+    # Check if arguments were passed
+    if len(sys.argv) > 2:
+        script_name: str = sys.argv[0]
+        # TODO: Try/Catch and fail gracefully with an error message if ValueError
+        deck1_id: int = int(sys.argv[1])
+        deck2_id: int = int(sys.argv[2])
 
-    print(f"Running script: {script_name}")
-    print(f"Deck 1 ID: {deck1_id}")
-    print(f"Deck 2 ID: {deck2_id}")
-else:
-    print("Two command line arguments (RingsDB deck id numbers) must be provided.")
-    sys.exit()
+        print(f"Running script: {script_name}")
+        print(f"Deck 1 ID: {deck1_id}")
+        print(f"Deck 2 ID: {deck2_id}")
+    else:
+        print("Two command line arguments (RingsDB deck id numbers) must be provided.")
+        sys.exit()
 
-deck1: DeckData = get_deck_data(deck1_id)
-deck2: DeckData = get_deck_data(deck2_id)
-# TODO: exit with error message if one of the decks can not be loaded (empty Counter)
+    deck1: DeckData = get_deck_data(deck1_id)
+    deck2: DeckData = get_deck_data(deck2_id)
+    # TODO: exit with error message if one of the decks can not be loaded (empty Counter)
 
-card_map_full: Dict[str, CardData] = get_card_map()
+    card_map_full: Dict[str, CardData] = get_card_map()
 
-#print(card_map)
-#sys.exit()
-
-
-# Returns 0 if the dictionary is completely empty
-card_name_longest_length: int = max((len(card.name) for card in card_map_full.values()), default=0)
-
-cards_to_add_slots: Counter = deck2.slots - deck1.slots
-cards_to_remove_slots: Counter = deck1.slots - deck2.slots
-card_map_to_add: Dict[str, CardData] = {k: v for k, v in card_map_full.items() if k in cards_to_add_slots}
-card_map_to_remove: Dict[str, CardData] = {k: v for k, v in card_map_full.items() if k in cards_to_remove_slots}
-
-#print(list(card_map_to_add.values()))
-#sys.exit()
-
-# TO DO: Allow for multiple sorting methods, e.g. by name, by sphere, by type, etc.
-# For now, sort by sphere, then by type, then by name
-card_map_to_add = dict(sorted(card_map_to_add.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
-card_map_to_remove = dict(sorted(card_map_to_remove.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
-
-name: str
-
-print(f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} \"({deck1.name}\") to {deck2_id} (\"{deck2.name}\") ==={Color.CLR_RST}")
-
-print("\n[-] CARDS TO REMOVE FROM DECK 1:")
-if not cards_to_remove_slots:
-    print("   None!")
-
-for card_id, card_data in card_map_to_remove.items():
-    print(f"  {Color.CLR_RED}Remove {cards_to_remove_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
-        pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
-        pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
-        f" [{card_data.type}]")  
-
-print("\n[+] CARDS TO ADD TO DECK 1:")
-if not cards_to_add_slots:
-    print("   None!")
-for card_id, card_data in card_map_to_add.items():
-    print(f"  {Color.CLR_GRN}Add {cards_to_add_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
-          pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
-          pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
-          f" [{card_data.type}]")
+    #print(card_map)
+    #sys.exit()
 
 
+    # Returns 0 if the dictionary is completely empty
+    card_name_longest_length: int = max((len(card.name) for card in card_map_full.values()), default=0)
+
+    cards_to_add_slots: Counter = deck2.slots - deck1.slots
+    cards_to_remove_slots: Counter = deck1.slots - deck2.slots
+    card_map_to_add: Dict[str, CardData] = {k: v for k, v in card_map_full.items() if k in cards_to_add_slots}
+    card_map_to_remove: Dict[str, CardData] = {k: v for k, v in card_map_full.items() if k in cards_to_remove_slots}
+
+    #print(list(card_map_to_add.values()))
+    #sys.exit()
+
+    # TO DO: Allow for multiple sorting methods, e.g. by name, by sphere, by type, etc.
+    # For now, sort by sphere, then by type, then by name
+    card_map_to_add = dict(sorted(card_map_to_add.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
+    card_map_to_remove = dict(sorted(card_map_to_remove.items(), key=lambda item: (item[1].sphere_name, item[1].type, item[1].name)))
+
+    name: str
+
+    print(f"\n{Color.CLR_CYN}=== MIGRATION PATH FROM {deck1_id} \"({deck1.name}\") to {deck2_id} (\"{deck2.name}\") ==={Color.CLR_RST}")
+
+    print("\n[-] CARDS TO REMOVE FROM DECK 1:")
+    if not cards_to_remove_slots:
+        print("   None!")
+
+    for card_id, card_data in card_map_to_remove.items():
+        print(f"  {Color.CLR_RED}Remove {cards_to_remove_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
+            pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
+            pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
+            f" [{card_data.type}]")  
+
+    print("\n[+] CARDS TO ADD TO DECK 1:")
+    if not cards_to_add_slots:
+        print("   None!")
+    for card_id, card_data in card_map_to_add.items():
+        print(f"  {Color.CLR_GRN}Add {cards_to_add_slots[card_id]}x " + pad_string_to_length(card_data.name, card_name_longest_length) + 
+            pad_string_to_length(f"(#{card_id}){Color.CLR_RST}", 13) + " " +
+            pad_string_to_length(f"[{card_data.sphere_color}{card_data.sphere_name}{Color.CLR_RST}]", 23) + 
+            f" [{card_data.type}]")
 
 
+if __name__ == "__main__":
+    main()
 
 
