@@ -165,6 +165,7 @@ def main():
     parser.add_argument("deck1_id", type=int, help="ID of the first deck")
     parser.add_argument("deck2_id", type=int, help="ID of the second deck")
     parser.add_argument('-c', '--no-color', action='store_true', help="Disable colorized output")
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.0.0')
     args = parser.parse_args()
 
     # Check if arguments were passed
