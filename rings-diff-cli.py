@@ -1,9 +1,22 @@
+import argparse
 import sys
 import requests
 import json
 from collections import Counter
 from typing import Dict
 from dataclasses import dataclass
+
+@dataclass
+class Color:
+    # ANSI Color Codes
+    CLR_BLU: str = "\033[34m"
+    CLR_RED: str = "\033[31m"
+    CLR_GRN: str = "\033[32m"
+    CLR_MAG: str = "\033[35m"
+    CLR_CYN: str = "\033[36m"
+    CLR_YLW: str = "\033[33m"
+    CLR_WHT: str = "\033[37m"
+    CLR_RST: str = "\033[0m"
 
 @dataclass
 class CardData:
@@ -95,18 +108,6 @@ class MigrationOutput:
             )
         return output
 
-@dataclass
-class Color:
-    # ANSI Color Codes
-    CLR_BLU: str = "\033[34m"
-    CLR_RED: str = "\033[31m"
-    CLR_GRN: str = "\033[32m"
-    CLR_MAG: str = "\033[35m"
-    CLR_CYN: str = "\033[36m"
-    CLR_YLW: str = "\033[33m"
-    CLR_WHT: str = "\033[37m"
-    CLR_RST: str = "\033[0m"
-
 def get_deck_data(deck_id):
     url: str = f"https://ringsdb.com/api/public/decklist/{deck_id}.json"
     http_response: requests.Response = requests.get(url)
@@ -160,12 +161,18 @@ def strip_ansi_escape_codes(input_str) -> str:
     return ansi_escape.sub('', input_str)
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("deck1_id", type=int, help="ID of the first deck")
+    parser.add_argument("deck2_id", type=int, help="ID of the second deck")
+    parser.add_argument('-c', '--no-color', action='store_true', help="Disable colorized output")
+    args = parser.parse_args()
+
     # Check if arguments were passed
     if len(sys.argv) > 2:
         script_name: str = sys.argv[0]
         # TODO: Try/Catch and fail gracefully with an error message if ValueError
-        deck1_id: int = int(sys.argv[1])
-        deck2_id: int = int(sys.argv[2])
+        deck1_id: int = int(args.deck1_id)
+        deck2_id: int = int(args.deck2_id)
 
         print(f"Running script: {script_name}")
         print(f"Deck 1 ID: {deck1_id}")
@@ -174,7 +181,7 @@ def main():
         print("Two command line arguments (RingsDB deck id numbers) must be provided.")
         sys.exit()
 
-    colorize: bool = True # TODO: Add command line argument to disable colorization for Windows cmd.exe users
+    colorize: bool = not args.no_color
 
     deck1: DeckData = get_deck_data(deck1_id)
     deck2: DeckData = get_deck_data(deck2_id)
