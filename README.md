@@ -36,7 +36,7 @@ python3 rings-diff-cli.py [-h] [-c] deck1_id deck2_id
 ## Example output
 
 <p align="center">
-  <img src="asset/sample.png" alt="Example Output" width="800">
+  <img src="assets/sample.png" alt="Example Output" width="800">
 </p>
 
 ### Positional arguments
