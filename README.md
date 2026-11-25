@@ -33,6 +33,12 @@ These are a strong pair to try because they are well known and one is derived fr
 python3 rings-diff-cli.py [-h] [-c] deck1_id deck2_id
 ```
 
+## Example output
+
+<p align="center">
+  <img src="asset/sample.png" alt="Example Output" width="800">
+</p>
+
 ### Positional arguments
 
 - `deck1_id`: ID of the first deck
