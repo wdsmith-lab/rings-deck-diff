@@ -42,8 +42,11 @@ python3 rings-diff-cli.py [-h] [-c] deck1_id deck2_id
 
 - `-h`, `--help`: Show the help message and exit
 - `-c`, `--no-color`: Disable colorized output
+- `-v`, `--version`: Show version information
 
 ## Current limitations
 
 - Decks must be published (public) on RingsDB.
 - Support for private decks is planned.
+- Output is currently by sphere, then by type (ally, attachment, etc..),
+then by name.
